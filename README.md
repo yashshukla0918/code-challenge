@@ -2,7 +2,7 @@
 
 This repository is a good React and Express application.
 
-**Fork** this repo on GhitHub (please save as a **private repo**)
+**Clone** this repo on GitHub (please save as a **private repo**)
 
 When you're finished, please share with @redsnow32
 
