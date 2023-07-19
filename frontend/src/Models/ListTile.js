@@ -24,10 +24,11 @@ import DataManager from "../Controller/DataManager";
 import CircularBar from '../Components/CircularBar';
 import Dialog from '../Components/Dialog';
 import DialogComp from '../Components/Dialog';
+import ListBuilder from '../Components/ListBuilder';
 
 
 const ListTile = () => {
-
+    //Schema  for out data set
     let schema = {
         id: '',
         name: "",
@@ -44,11 +45,17 @@ const ListTile = () => {
     const [ids, setIds] = useState('')
     const [drawerItem, setDrawerItem] = useState(schema)
     const [message, setMessage] = useState('');
+
+
+    //data set statefull handler
+    /*
+    This  will handle state of values even after refreshing page
+    */
     const manager = new DataManager()
 
 
 
-
+    //Initial Render
     useEffect(async () => {
         let data = await manager.getList()
         setTimeout(() => {
@@ -58,28 +65,31 @@ const ListTile = () => {
         return () => clearTimeout()
     }, [])
 
-
+    //Reload the changed/updated data
     async function reload() {
         let data = await manager.getList()
         setDataSet(data)
     }
 
-
+    //name updation/input handler
     const handleNameChange = (e) => {
         setDrawerItem((prev) => ({ ...prev, ...{ name: e.target.value } }))
     }
+    //description updation/input handler
     const handleDecChange = (e) => {
         setDrawerItem((prev) => ({ ...prev, ...{ description: e.target.value } }))
     }
+    ////view updation/input handler
     const handleViewChange = (e) => {
         setDrawerItem((prev) => ({ ...prev, ...{ viewed: e.target.checked } }))
     }
+    //status updation/input handler
     const handleStatusChange = (e) => {
         setDrawerItem((prev) => ({ ...prev, ...{ status: e.target.value } }))
     }
 
 
-
+    // this will delete an item from row and update the state of application
     const handleDelete = (id) => {
         setLoading(true)
         manager.deleteData(id).then((res) => {
@@ -98,10 +108,15 @@ const ListTile = () => {
         setLoading(false)
     }
 
-
+    /*
+    This handlesubmit function has two functionalities
+    1. This will add new Item
+    2. This will update existing item
+    */
     const handleSubmit = (e) => {
         e.preventDefault()
         if (newEntry) {
+            //ADDING
             setLoading(true)
             manager.addNewData(drawerItem).then((res) => {
                 const [status, data] = res
@@ -145,33 +160,24 @@ const ListTile = () => {
     return (
 
         loading ? <CircularBar /> : <div>
-            <List>
-                <ListItem>
-                    <Button color='primary' variant="contained" className='px-4' onClick={() => {
-                        setDrawerItem(schema)
-                        setNewEntry(true)
-                        setOpen(true)
-                    }}>
-                        <Typography variant='span'>Add New</Typography>
-                    </Button>
-                </ListItem>
+            <div className='row'>
+                <div className='col-sm-4'>
                 {
-                    dataSet?.map((item) => {
-                        return (
-                            <ListItem key={item?.id}>
-                                <Button className='px-4' onClick={() => { setDrawerItem((prev) => ({ ...prev, ...item })); setOpen(true) }}>
-                                    <ListItemAvatar >
-                                        <Avatar>
-                                            <Folder />
-                                        </Avatar>
-                                    </ListItemAvatar>
-                                    <Typography variant='span'>{item.name}</Typography>
-                                </Button>
-                            </ListItem>
-                        )
-                    })
-                }
-            </List>
+                        <ListBuilder
+                            schema={schema}
+                            dataSet={dataSet}
+                            setDrawerItem={setDrawerItem}
+                            setNewEntry={setNewEntry}
+                            setOpen={setOpen}
+                        />
+                    }
+                </div>
+                <div className='col-sm-4'>
+                    
+                </div>
+                <div className='col-sm-4'></div>
+            </div>
+
             <Drawer
                 open={open}
                 className='px-5'
@@ -196,7 +202,7 @@ const ListTile = () => {
                             <Divider /><br />
                             <FormControl className='text-center'>
                                 <FormLabel id="radio-lable">Status</FormLabel>
-                                <RadioGroup
+                                {drawerItem.status !== 'complete' ? <RadioGroup
                                     aria-labelledby="radio-lable"
                                     value={drawerItem.status}
                                     name="radio-buttons-group"
@@ -209,7 +215,7 @@ const ListTile = () => {
                                         <FormControlLabel value="complete" control={<Radio required />} label="Complete" />
                                         <FormControlLabel value="archived" control={<Radio required />} label="Archived" />
                                     </center>
-                                </RadioGroup>
+                                </RadioGroup> : <Typography variant='h6'>Completed</Typography>}
                             </FormControl>
                             <Divider className='my-3' />
                             <ButtonGroups
