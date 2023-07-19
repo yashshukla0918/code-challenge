@@ -1,24 +1,14 @@
-import React from 'react';
-import './styles.css';
-import { AppBar, Toolbar, Typography } from '@mui/material';
-import { CustomList } from './Components/CustomList';
-
-export default function App() {
+import React from 'react'
+import NavBar from './Components/NavBar'
+import ListTile from './Models/ListTile'
+const App = () => {
   return (
-    <div>
-      <AppBar
-        position='fixed'
-        style={{
-          backgroundColor: 'blue',
-        }}
-      >
-        <Toolbar>
-          <Typography variant='h6' noWrap>
-            My List Of Stuff
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <CustomList />
+    <div className='container-fluid p-0'>
+      <NavBar/>
+      <ListTile/>
     </div>
-  );
+  )
 }
+
+export default App
+
