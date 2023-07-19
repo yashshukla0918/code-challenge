@@ -7,7 +7,6 @@ class DataManager {
     }
 
     async addNewData(obj) {
-       
         let response = await axios.post('http://localhost:3010/item', obj)
         let status = await response?.status
         let data = await response?.data
@@ -15,14 +14,15 @@ class DataManager {
     }
 
     async updateData(obj) {
+        console.log(obj);
         const response = await axios.put('http://localhost:3010/item', obj)
         const status = await response?.status
         const data = await response?.data
         return [status, data]
     }
 
-    async deleteData(name) {
-        const response = await axios.delete(`http://localhost:3010/item/${name}`)
+    async deleteData(id) {
+        const response = await axios.delete(`http://localhost:3010/item/${id}`)
         const status = await response?.status
         const data = await response?.data
         return [status, data]

@@ -1,6 +1,6 @@
 import React from 'react'
 import { ButtonGroup, Button } from "@mui/material";
-const ButtonGroups = ({ newEntry, setNewEntry, setOpen }) => {
+const ButtonGroups = ({ id,newEntry, setNewEntry, setOpen ,handleDelete}) => {
     return (
         <ButtonGroup
             fullWidth
@@ -11,8 +11,8 @@ const ButtonGroups = ({ newEntry, setNewEntry, setOpen }) => {
                     <Button type='submit' color='success' >Save New</Button>
                     <Button type='button' color='warning' onClick={() => { setNewEntry(false); setOpen(false) }}>Cancel</Button>
                 </> : <>
-                    <Button type='submit' color='warning'>Update</Button>
-                    <Button type='button' color='error' onClick={() => { setNewEntry(false); setOpen(false) }}>Delete</Button>
+                    <Button type='submit'  color='warning'>Update</Button>
+                    <Button type='button' color='error' onClick={()=>{handleDelete(id)}}>Delete</Button>
                 </>
             }
         </ButtonGroup>

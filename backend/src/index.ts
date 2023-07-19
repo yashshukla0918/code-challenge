@@ -22,8 +22,6 @@ const arrayObj = new DataHandler()
 const statusValidator = (value:'string',helpers : Joi.CustomHelpers<string>) =>{
     const statusArray: string[] = ['new' , 'complete' , 'in-progress' , 'on-hold' , 'archived']  
     if(statusArray.includes(value.toLowerCase())){
-        console.log(statusArray.includes(value))
-    
         return value
     }
     return helpers.error('Invalid type of status')
@@ -33,6 +31,7 @@ const statusValidator = (value:'string',helpers : Joi.CustomHelpers<string>) =>{
 
 //Schema for new item input in POST method
 const reqSchema = Joi.object({
+    id : Joi.string().required(),
     name : Joi.string().required(),
     description : Joi.string().empty(),
     viewed : Joi.boolean().required(),
@@ -66,11 +65,16 @@ app.get('/list/:name', (req: Request, res: Response) => {
 //add a  new item in list
 app.post('/item', (req: Request, res: Response) => {
     try {
-        const {error, value} = reqSchema.validate(req.body) 
+        let id  = new Date().getTime().toString();
+        let body = {...req.body,...{id:id}}
+        const {error, value} = reqSchema.validate(body)         
         if(error){
-            res.status(401).json(error)
+            res.status(401).json({
+                "message" : error?.details[0].message
+            })
         }
         else{
+            
             res.status(201).json({
                 "message" : arrayObj.addNewItem(value)
             })
@@ -88,8 +92,20 @@ app.post('/item', (req: Request, res: Response) => {
 
 
 //Updating an item in arrayObj
-app.put('/item', (req: Request, res: Response) => {
+app.put('/item', (req: Request, res: Response) => {    
     try {
+        const {error, value} = reqSchema.validate(req.body)         
+        if(error){
+            res.status(401).json({
+                "message" : error?.details[0].message
+            })
+        }
+        else{
+            
+            res.status(200).json({
+                "data" : arrayObj.updateByObject(value)
+            })
+        } 
 
     } catch (error) {
         console.error(`Error From Server : ${error}`);

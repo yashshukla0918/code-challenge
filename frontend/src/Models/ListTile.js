@@ -22,21 +22,28 @@ import { Folder, Close } from "@mui/icons-material";
 import ButtonGroups from '../Components/ButtonGroups';
 import DataManager from "../Controller/DataManager";
 import CircularBar from '../Components/CircularBar';
+import Dialog from '../Components/Dialog';
+import DialogComp from '../Components/Dialog';
 
 
 const ListTile = () => {
 
     let schema = {
+        id: '',
         name: "",
         description: "",
         viewed: false,
         status: "new"
     }
+
+    const [dialog, setDialog] = useState(false)
     const [dataSet, setDataSet] = useState([]);
     const [open, setOpen] = useState(false)
     const [newEntry, setNewEntry] = useState(false)
     const [loading, setLoading] = useState(true)
+    const [ids, setIds] = useState('')
     const [drawerItem, setDrawerItem] = useState(schema)
+    const [message, setMessage] = useState('');
     const manager = new DataManager()
 
 
@@ -44,15 +51,15 @@ const ListTile = () => {
 
     useEffect(async () => {
         let data = await manager.getList()
-        setTimeout(()=>{
+        setTimeout(() => {
             setDataSet(data)
             setLoading(false)
-        },2000)
-        return ()=> clearTimeout()
+        }, 2000)
+        return () => clearTimeout()
     }, [])
 
 
-    async function reload(){
+    async function reload() {
         let data = await manager.getList()
         setDataSet(data)
     }
@@ -70,34 +77,74 @@ const ListTile = () => {
     const handleStatusChange = (e) => {
         setDrawerItem((prev) => ({ ...prev, ...{ status: e.target.value } }))
     }
-    const handleDelete = () => {
+
+
+
+    const handleDelete = (id) => {
+        setLoading(true)
+        manager.deleteData(id).then((res) => {
+            const [status, data] = res;
+            setOpen(false)
+            setDataSet(data?.data)
+            setMessage("Data Deleted Succesfully")
+            setDialog(true)
+            reload()
+        }).catch((err) => {
+            let message = "[ERROR] " + err?.response.data.message
+            setMessage(message)
+            setDialog(true)
+
+        })
+        setLoading(false)
     }
-    const handleSubmit =  (e) => {
+
+
+    const handleSubmit = (e) => {
         e.preventDefault()
         if (newEntry) {
             setLoading(true)
-            manager.addNewData(drawerItem).then((res)=>{
-                const [status,data] = res
-                if(status === 201){
+            manager.addNewData(drawerItem).then((res) => {
+                const [status, data] = res
+                if (status === 201) {
                     setOpen(false)
                     setNewEntry(false)
-                    alert(data?.message)
+                    setMessage(data?.message)
+                    setDialog(true)
                     reload()
                 }
-            }).catch((err)=>{
-                log(err)
+            }).catch((err) => {
+                let message = "[ERROR] " + err?.response.data.message
+                setMessage(message)
+                setDialog(true)
+
             })
             setLoading(false)
         }
         else {
-            //update here
+            //UPDATING
+            setLoading(true)
+            manager.updateData(drawerItem).then((res) => {
+                const [status, data] = res
+                if (status === 200) {
+                    setOpen(false)
+                    setMessage("Updated Successfully")
+                    setDialog(true)
+                    reload()
+                }
+            }).catch((err) => {
+                let message = "[ERROR] " + err?.response.data.message
+                setMessage(message)
+                setDialog(true)
+
+            })
+            setLoading(false)
         }
     }
 
 
     return (
-        
-            loading? <CircularBar/>: <div>
+
+        loading ? <CircularBar /> : <div>
             <List>
                 <ListItem>
                     <Button color='primary' variant="contained" className='px-4' onClick={() => {
@@ -111,7 +158,7 @@ const ListTile = () => {
                 {
                     dataSet?.map((item) => {
                         return (
-                            <ListItem key={item.name}>
+                            <ListItem key={item?.id}>
                                 <Button className='px-4' onClick={() => { setDrawerItem((prev) => ({ ...prev, ...item })); setOpen(true) }}>
                                     <ListItemAvatar >
                                         <Avatar>
@@ -129,7 +176,7 @@ const ListTile = () => {
                 open={open}
                 className='px-5'
                 anchor='right'
-                onClose={() => setOpen(false)}
+                onClose={() => { setNewEntry(false); setOpen(false) }}
             >
                 <form onSubmit={handleSubmit}>
                     <div className='p-3  my-2 mx-4' style={{
@@ -166,6 +213,8 @@ const ListTile = () => {
                             </FormControl>
                             <Divider className='my-3' />
                             <ButtonGroups
+                                handleDelete={handleDelete}
+                                id={drawerItem.id}
                                 newEntry={newEntry}
                                 setNewEntry={setNewEntry}
                                 setOpen={setOpen}
@@ -174,8 +223,9 @@ const ListTile = () => {
                     </div>
                 </form>
             </Drawer>
+            <DialogComp dialog={dialog} setDialog={setDialog} message={message} />
         </div>
-    
+
     )
 }
 

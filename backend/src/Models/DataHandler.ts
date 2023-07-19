@@ -21,9 +21,9 @@ class DataHandler {
             return "Problem in adding"
         }
     }
-    deleteByName(name:String): Item []{
+    deleteByName(id:String): Item []{
         this.dataSet = [...this.dataSet].filter((item)=>{
-            if(item.name !== name){
+            if(item.id !== id){
                 return item
             }
         })
@@ -38,8 +38,21 @@ class DataHandler {
         return newArr
     }
 
-    updateByObject(){
-        
+    updateByObject(obj:Item){
+        try{      
+            const arr = [...this.dataSet]
+            const newa = [...arr].map((item)=>{
+                if(item.id === obj.id){
+                    return obj
+                }
+                return item
+            })
+            this.dataSet = newa
+            return "Item Updated Successfully"
+        }
+        catch(err){
+            return "Problem in Updating"
+        }
     }
 }
 
