@@ -9,7 +9,7 @@
 #### >>> cd code-challenge
 
 ### Install all dependencies 
-#### 1. In code-chalenge Folder
+#### 1. In code-challenge Folder
 ##### >>> npm install
 
 #### 2. Inside Frontend Folder
